@@ -1,0 +1,28 @@
+# Build artifacts
+*.o
+*.a
+*.so
+
+# Test coverage reports
+coverage.txt
+
+# IDE specific files
+.idea/
+.vscode/
+
+# Vendored dependencies (if using a vendor directory)
+vendor/
+
+# Generated documentation (if applicable)
+docs/
+
+
+
+# Temporary Go files
+*.tmp
+
+# Logs
+*.log
+
+# env variables
+app.env
