@@ -26,3 +26,5 @@ docs/
 
 # env variables
 app.env
+
+tmp/
