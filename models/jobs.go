@@ -7,11 +7,11 @@ import (
 // Job represents a job posting.
 type Job struct {
 	BaseModel
-	Title          string `gorm:"not null"`
-	Description    string `gorm:"not null"`
-	Location       string `gorm:"not null"`
-	EmploymentType string `gorm:"not null"`
-	Deadline       string `gorm:"not null"`
+	Title          string    `gorm:"not null"`
+	Description    string    `gorm:"not null"`
+	Location       string    `gorm:"not null"`
+	EmploymentType string    `gorm:"not null"`
+	Deadline       time.Time `gorm:"not null"`
 
 	RecruiterID  uint
 	Recruiter    User `gorm:"foreignKey:RecruiterID;references:id"`
@@ -20,20 +20,20 @@ type Job struct {
 
 // CreateJobRequest represents the request body for creating a new job.
 type CreateJobRequest struct {
-	Title          string `json:"title" binding:"required,min=3"`        // Minimum 3 characters for title
-	Description    string `json:"description" binding:"required,min=10"` // Minimum 10 characters for description
-	Location       string `json:"location" binding:"required,min=3"`     // Minimum 3 characters for location
-	EmploymentType string `json:"employment_type" binding:"required,min=5"`
-	Deadline       string `json:"deadline" binding:"required" time_format:2006-01-02` // Validate as year-month-day format
+	Title          string    `json:"title" binding:"required,min=3"`        // Minimum 3 characters for title
+	Description    string    `json:"description" binding:"required,min=10"` // Minimum 10 characters for description
+	Location       string    `json:"location" binding:"required,min=3"`     // Minimum 3 characters for location
+	EmploymentType string    `json:"employment_type" binding:"required,min=5"`
+	Deadline       time.Time `json:"deadline" binding:"required,datetime=2006-01-02"`
 }
 
 // UpdateJobRequest represents the request body for updating an existing job.
 type UpdateJobRequest struct {
-	Title          string `json:"title,omitempty"`
-	Description    string `json:"description,omitempty"`
-	Location       string `json:"location,omitempty"`
-	EmploymentType string `json:"employment_type,omitempty"`
-	Deadline       string `json:"deadline,omitempty"`
+	Title          string    `json:"title,omitempty"`
+	Description    string    `json:"description,omitempty"`
+	Location       string    `json:"location,omitempty"`
+	EmploymentType string    `json:"employment_type,omitempty"`
+	Deadline       time.Time `json:"deadline,omitempty"`
 }
 
 type JobResponse struct {
@@ -42,7 +42,7 @@ type JobResponse struct {
 	Description    string    `json:"description,omitempty"`
 	Location       string    `json:"location,omitempty"`
 	EmploymentType string    `json:"employment_type,omitempty"`
-	Deadline       string    `json:"deadline,omitempty"`
+	Deadline       time.Time `json:"deadline,omitempty"`
 	CreatedAt      time.Time `json:"created_at,omitempty"`
 	UpdatedAt      time.Time `json:"updated_at,omitempty"`
 }
