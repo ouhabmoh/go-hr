@@ -1,5 +1,9 @@
 package models
 
+import (
+	"time"
+)
+
 // Job represents a job posting.
 type Job struct {
 	BaseModel
@@ -9,7 +13,7 @@ type Job struct {
 	EmploymentType string `gorm:"not null"`
 	Deadline       string `gorm:"not null"`
 
-	RecruiterID  int
+	RecruiterID  uint
 	Recruiter    User `gorm:"foreignKey:RecruiterID;references:id"`
 	Applications []Application
 }
@@ -30,4 +34,15 @@ type UpdateJobRequest struct {
 	Location       string `json:"location,omitempty"`
 	EmploymentType string `json:"employment_type,omitempty"`
 	Deadline       string `json:"deadline,omitempty"`
+}
+
+type JobResponse struct {
+	ID             uint      `json:"id,omitempty"`
+	Title          string    `json:"title,omitempty"`
+	Description    string    `json:"description,omitempty"`
+	Location       string    `json:"location,omitempty"`
+	EmploymentType string    `json:"employment_type,omitempty"`
+	Deadline       string    `json:"deadline,omitempty"`
+	CreatedAt      time.Time `json:"created_at,omitempty"`
+	UpdatedAt      time.Time `json:"updated_at,omitempty"`
 }
