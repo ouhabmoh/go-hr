@@ -18,6 +18,12 @@ var (
 
 	UserController      controllers.UserController
 	UserRouteController routes.UserRouteController
+
+	JobController      controllers.JobController
+	JobRouteController routes.JobRouteController
+
+	ApplicationController      controllers.ApplicationController
+	ApplicationRouteController routes.ApplicationRouteController
 )
 
 func init() {
@@ -33,6 +39,12 @@ func init() {
 
 	UserController = controllers.NewUserController(initializers.DB)
 	UserRouteController = routes.NewRouteUserController(UserController)
+
+	JobController = controllers.NewJobController(initializers.DB)
+	JobRouteController = routes.NewRouteJobController(JobController)
+
+	ApplicationController = controllers.NewApplicationController(initializers.DB)
+	ApplicationRouteController = routes.NewRouteApplicationController(ApplicationController)
 
 	server = gin.Default()
 }
@@ -57,6 +69,8 @@ func main() {
 
 	AuthRouteController.AuthRoute(router)
 	UserRouteController.UserRoute(router)
+	JobRouteController.JobRoute(router)
+	ApplicationRouteController.ApplicationRoute(router)
 
 	log.Fatal(server.Run(":" + config.ServerPort))
 }
