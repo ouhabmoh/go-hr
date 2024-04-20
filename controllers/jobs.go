@@ -146,7 +146,7 @@ func (jc *JobController) FindJobs(ctx *gin.Context) {
 	offset := (intPage - 1) * intLimit
 	var jobs []models.Job
 
-	results := jc.DB.Limit(intLimit).Offset(offset).Find(&jobs)
+	results := jc.DB.Where("deadline > ?", time.Now()).Limit(intLimit).Offset(offset).Find(&jobs)
 	if results.Error != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": results.Error})
 		return

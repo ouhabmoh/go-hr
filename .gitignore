@@ -28,3 +28,5 @@ docs/
 app.env
 
 tmp/
+
+*.pdf
