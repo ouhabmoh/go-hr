@@ -213,3 +213,29 @@ func (jc *JobController) Apply(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": applicationResponse})
 }
+
+func (jc *JobController) GetJobApplications(ctx *gin.Context) {
+	jobID, _ := strconv.Atoi(ctx.Param("jobID"))
+	var applications []models.Application
+	result := jc.DB.Where("job_id = ?", jobID).Find(&applications)
+	if result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
+		return
+	}
+
+	var applicationResponses []models.ApplicationResponse
+	for _, application := range applications {
+		applicationResponse := models.ApplicationResponse{
+			ID:          application.ID,
+			JobID:       application.JobID,
+			CandidateID: application.CandidateID,
+			Status:      application.Status,
+
+			CreatedAt: application.CreatedAt,
+			UpdatedAt: application.UpdatedAt,
+		}
+		applicationResponses = append(applicationResponses, applicationResponse)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": applicationResponses})
+}

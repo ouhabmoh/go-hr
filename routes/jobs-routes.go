@@ -24,4 +24,5 @@ func (jc *JobRouteController) JobRoute(rg *gin.RouterGroup) {
 	router.GET("/:jobID", jc.jobController.FindJobByID)
 	router.DELETE("/:jobID", middleware.AuthorizeRoles(middleware.RoleRecruiter), jc.jobController.DeleteJob)
 	router.POST("/:jobID/applications", middleware.AuthorizeRoles(middleware.RoleCandidate), jc.jobController.Apply)
+	router.GET("/:jobID/applications", middleware.AuthorizeRoles(middleware.RoleRecruiter), jc.jobController.getJobApplications)
 }
