@@ -17,40 +17,6 @@ func NewApplicationController(DB *gorm.DB) ApplicationController {
 	return ApplicationController{DB}
 }
 
-func (ac *ApplicationController) CreateApplication(ctx *gin.Context) {
-	currentUser := ctx.MustGet("currentUser").(models.User)
-	var payload *models.CreateApplicationRequest
-	if err := ctx.ShouldBindJSON(&payload); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
-		return
-	}
-
-	newApplication := models.Application{
-		JobID:       payload.JobID,
-		CandidateID: currentUser.ID,
-		Status:      "pending",
-		Evaluation:  nil,
-	}
-
-	result := ac.DB.Create(&newApplication)
-	if result.Error != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": result.Error.Error()})
-		return
-	}
-
-	applicationResponse := models.ApplicationResponse{
-		ID:          newApplication.ID,
-		JobID:       newApplication.JobID,
-		CandidateID: newApplication.CandidateID,
-		Status:      newApplication.Status,
-
-		CreatedAt: newApplication.CreatedAt,
-		UpdatedAt: newApplication.UpdatedAt,
-	}
-
-	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": applicationResponse})
-}
-
 func (ac *ApplicationController) UpdateApplication(ctx *gin.Context) {
 	applicationID, _ := strconv.Atoi(ctx.Param("applicationID"))
 	var payload *models.UpdateApplicationRequest

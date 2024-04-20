@@ -16,7 +16,7 @@ type Application struct {
 
 // CreateApplicationRequest represents the request body for creating a new job application.
 type CreateApplicationRequest struct {
-	JobID int `json:"job_id" binding:"required"`
+	JobID int `uri:"jobID" binding:"required"`
 }
 
 // UpdateApplicationRequest represents the request body for updating an existing job application.

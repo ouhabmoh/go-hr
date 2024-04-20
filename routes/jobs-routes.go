@@ -20,7 +20,8 @@ func (jc *JobRouteController) JobRoute(rg *gin.RouterGroup) {
 	router.Use(middleware.DeserializeUser())
 	router.POST("/", middleware.AuthorizeRoles(middleware.RoleRecruiter), jc.jobController.CreateJob)
 	router.GET("/", jc.jobController.FindJobs)
-	router.PUT("/:jobID", middleware.AuthorizeRoles(middleware.RoleRecruiter), jc.jobController.UpdateJob)
+	router.PATCH("/:jobID", middleware.AuthorizeRoles(middleware.RoleRecruiter), jc.jobController.UpdateJob)
 	router.GET("/:jobID", jc.jobController.FindJobByID)
 	router.DELETE("/:jobID", middleware.AuthorizeRoles(middleware.RoleRecruiter), jc.jobController.DeleteJob)
+	router.POST("/:jobID/applications", middleware.AuthorizeRoles(middleware.RoleCandidate), jc.jobController.Apply)
 }

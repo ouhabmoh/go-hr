@@ -166,3 +166,46 @@ func (jc *JobController) DeleteJob(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusNoContent, nil)
 }
+
+func (jc *JobController) Apply(ctx *gin.Context) {
+	currentUser := ctx.MustGet("currentUser").(models.User)
+	jobID, _ := strconv.Atoi(ctx.Param("jobID"))
+	var request *models.CreateApplicationRequest
+	if err := ctx.ShouldBindUri(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
+		return
+	}
+
+	var job models.Job
+	result := jc.DB.First(&job, "id = ?", jobID)
+
+	if result.Error != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No job with that ID exists"})
+		return
+	}
+
+	newApplication := models.Application{
+		JobID:       jobID,
+		CandidateID: currentUser.ID,
+		Status:      "pending",
+		Evaluation:  nil,
+	}
+
+	result = jc.DB.Create(&newApplication)
+	if result.Error != nil {
+		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": result.Error.Error()})
+		return
+	}
+
+	applicationResponse := models.ApplicationResponse{
+		ID:          newApplication.ID,
+		JobID:       newApplication.JobID,
+		CandidateID: newApplication.CandidateID,
+		Status:      newApplication.Status,
+
+		CreatedAt: newApplication.CreatedAt,
+		UpdatedAt: newApplication.UpdatedAt,
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": applicationResponse})
+}
