@@ -60,10 +60,16 @@ func (ac *ApplicationController) UpdateApplication(ctx *gin.Context) {
 
 func (ac *ApplicationController) GetApplicationByID(ctx *gin.Context) {
 	applicationID, _ := strconv.Atoi(ctx.Param("applicationID"))
+	currentUser := ctx.MustGet("currentUser").(models.User)
 	var application models.Application
 	result := ac.DB.First(&application, "id = ?", applicationID)
 	if result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No application with that ID exists"})
+		return
+	}
+
+	if currentUser.Role == "candidate" && currentUser.ID != application.CandidateID {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "You are Not Allowed to perform this action"})
 		return
 	}
 
