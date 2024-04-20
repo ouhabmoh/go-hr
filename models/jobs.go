@@ -20,11 +20,11 @@ type Job struct {
 
 // CreateJobRequest represents the request body for creating a new job.
 type CreateJobRequest struct {
-	Title          string    `json:"title" binding:"required,min=3"`        // Minimum 3 characters for title
-	Description    string    `json:"description" binding:"required,min=10"` // Minimum 10 characters for description
-	Location       string    `json:"location" binding:"required,min=3"`     // Minimum 3 characters for location
-	EmploymentType string    `json:"employment_type" binding:"required,min=5"`
-	Deadline       time.Time `json:"deadline" binding:"required,datetime=2006-01-02"`
+	Title          string `json:"title" binding:"required,min=3"`        // Minimum 3 characters for title
+	Description    string `json:"description" binding:"required,min=10"` // Minimum 10 characters for description
+	Location       string `json:"location" binding:"required,min=3"`     // Minimum 3 characters for location
+	EmploymentType string `json:"employment_type" binding:"required,min=5"`
+	Deadline       string `json:"deadline" binding:"required"`
 }
 
 // UpdateJobRequest represents the request body for updating an existing job.

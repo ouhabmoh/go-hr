@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ouhabmoh/HR/models"
@@ -27,12 +28,25 @@ func (jc *JobController) CreateJob(ctx *gin.Context) {
 		return
 	}
 
+	format := "2006-01-02"
+	deadline, errors := time.Parse(format, payload.Deadline)
+	if errors != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Deadline format is invalid"})
+		return
+	}
+
+	now := time.Now()
+	if now.Compare(deadline) == 1 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Deadline can not be older than today"})
+		return
+	}
+
 	newJob := models.Job{
 		Title:          payload.Title,
 		Description:    payload.Description,
 		Location:       payload.Location,
 		EmploymentType: payload.EmploymentType,
-		Deadline:       payload.Deadline,
+		Deadline:       deadline,
 		RecruiterID:    currentUser.ID,
 	}
 
@@ -173,6 +187,18 @@ func (jc *JobController) Apply(ctx *gin.Context) {
 	var request *models.CreateApplicationRequest
 	if err := ctx.ShouldBindUri(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
+		return
+	}
+	file, err := ctx.FormFile("resume")
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "Error getting resume file: %v", err)
+		return
+	}
+
+	// Save the uploaded file to the server
+	err = ctx.SaveUploadedFile(file, "./uploads/"+file.Filename)
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "Error saving resume file: %v", err)
 		return
 	}
 

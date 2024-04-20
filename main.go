@@ -54,6 +54,7 @@ func main() {
 	if err != nil {
 		log.Fatal("🚀 Could not load environment variables", err)
 	}
+	server.MaxMultipartMemory = 8 << 20 // 8 MiB
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{"http://localhost:8000", config.ClientOrigin}
