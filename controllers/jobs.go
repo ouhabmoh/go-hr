@@ -192,8 +192,12 @@ func (jc *JobController) Apply(ctx *gin.Context) {
 	}
 
 	result = jc.DB.Create(&newApplication)
-	if result.Error != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": result.Error.Error()})
+
+	if result.Error != nil && strings.Contains(result.Error.Error(), "duplicate key value violates unique") {
+		ctx.JSON(http.StatusConflict, gin.H{"status": "fail", "message": "You Already Applied to this job posting"})
+		return
+	} else if result.Error != nil {
+		ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "Something bad happened"})
 		return
 	}
 
