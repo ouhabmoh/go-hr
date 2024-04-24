@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ouhabmoh/HR/models"
+	"github.com/ouhabmoh/HR/utils"
 	"gorm.io/gorm"
 )
 
@@ -191,14 +192,12 @@ func (jc *JobController) Apply(ctx *gin.Context) {
 	}
 	file, err := ctx.FormFile("resume")
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "Error getting resume file: %v", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Error getting resume file"})
 		return
 	}
 
-	// Save the uploaded file to the server
-	err = ctx.SaveUploadedFile(file, "./uploads/"+file.Filename)
-	if err != nil {
-		ctx.String(http.StatusInternalServerError, "Error saving resume file: %v", err)
+	if _, error := utils.IsValidFile(file); error != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Unvalid resume file, please provide a valid pdf file with size less than 5mb"})
 		return
 	}
 
@@ -210,9 +209,29 @@ func (jc *JobController) Apply(ctx *gin.Context) {
 		return
 	}
 
+	fileName := utils.GenerateFileName(file.Filename)
+
+	// Save the uploaded file to the server
+	err = ctx.SaveUploadedFile(file, "./uploads/"+fileName)
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "Error saving resume file: %v", err)
+		return
+	}
+
+	resume := models.Resume{
+		CandidateID: currentUser.ID,
+		Filename:    fileName,
+	}
+	result = jc.DB.Create(&resume)
+	if result.Error != nil {
+		ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "Internal Server Error"})
+		return
+	}
+
 	newApplication := models.Application{
 		JobID:       jobID,
 		CandidateID: currentUser.ID,
+		ResumeID:    resume.ID,
 		Status:      "pending",
 		Evaluation:  nil,
 	}
@@ -232,9 +251,9 @@ func (jc *JobController) Apply(ctx *gin.Context) {
 		JobID:       newApplication.JobID,
 		CandidateID: newApplication.CandidateID,
 		Status:      newApplication.Status,
-
-		CreatedAt: newApplication.CreatedAt,
-		UpdatedAt: newApplication.UpdatedAt,
+		ResumeID:    newApplication.ResumeID,
+		CreatedAt:   newApplication.CreatedAt,
+		UpdatedAt:   newApplication.UpdatedAt,
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": applicationResponse})
