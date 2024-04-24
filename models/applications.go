@@ -5,8 +5,8 @@ import "time"
 // Application represents a job application.
 type Application struct {
 	BaseModel
-	JobID       int    `gorm:"not null"`
-	CandidateID uint   `gorm:"not null"`
+	JobID       int    `gorm:"uniqueIndex:idx_job_candidate"`
+	CandidateID uint   `gorm:"uniqueIndex:idx_job_candidate"`
 	ResumeID    uint   `gorm:"not null"`
 	Status      string `gorm:"not null"`
 	Evaluation  *int   `gorm:"check:evaluation >= 0 AND evaluation <= 10"`
