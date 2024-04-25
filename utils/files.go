@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"mime/multipart"
 	"path/filepath"
 	"strings"
@@ -23,19 +24,20 @@ func GenerateFileName(fileName string) string {
 	return newFileName
 }
 
-func IsValidFile(file *multipart.FileHeader) (bool, error) {
+func IsValidFile(file *multipart.FileHeader) bool {
 	// Check file size
 	if file.Size > maxFileSize {
-		return false, nil
+		return false
 	}
 
 	// Check file type
 	fileType := file.Header.Get("Content-Type")
+	fmt.Println(fileType)
 	if !isAllowedFileType(fileType) {
-		return false, nil
+		return false
 	}
 
-	return true, nil
+	return true
 }
 
 func isAllowedFileType(fileType string) bool {

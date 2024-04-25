@@ -196,7 +196,7 @@ func (jc *JobController) Apply(ctx *gin.Context) {
 		return
 	}
 
-	if _, error := utils.IsValidFile(file); error != nil {
+	if !utils.IsValidFile(file) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Unvalid resume file, please provide a valid pdf file with size less than 5mb"})
 		return
 	}
