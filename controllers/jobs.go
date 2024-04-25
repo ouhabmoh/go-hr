@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -204,7 +205,7 @@ func (jc *JobController) Apply(ctx *gin.Context) {
 	var job models.Job
 	result := jc.DB.First(&job, "id = ?", jobID)
 
-	if result.Error != nil {
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No job with that ID exists"})
 		return
 	}
