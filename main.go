@@ -24,6 +24,9 @@ var (
 
 	ApplicationController      controllers.ApplicationController
 	ApplicationRouteController routes.ApplicationRouteController
+
+	ResumeController      controllers.ResumeController
+	ResumeRouteController routes.ResumeRouteController
 )
 
 func init() {
@@ -45,6 +48,9 @@ func init() {
 
 	ApplicationController = controllers.NewApplicationController(initializers.DB)
 	ApplicationRouteController = routes.NewRouteApplicationController(ApplicationController)
+
+	ResumeController = controllers.NewResumeController(initializers.DB)
+	ResumeRouteController = routes.NewRouteResumeController(ResumeController)
 
 	server = gin.Default()
 }
@@ -72,6 +78,7 @@ func main() {
 	UserRouteController.UserRoute(router)
 	JobRouteController.JobRoute(router)
 	ApplicationRouteController.ApplicationRoute(router)
+	ResumeRouteController.ResumeRoute(router)
 
 	log.Fatal(server.Run(":" + config.ServerPort))
 }
