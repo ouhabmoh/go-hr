@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
@@ -19,20 +20,31 @@ func NewResumeController(DB *gorm.DB) ResumeController {
 }
 
 func (rc *ResumeController) GetResumeByID(ctx *gin.Context) {
+	currentUser := ctx.MustGet("currentUser").(models.User)
 	resumeID := ctx.Param("resumeID")
 	fmt.Println(resumeID)
 	var resume models.Resume
 	err := rc.DB.First(&resume, resumeID).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			ctx.String(http.StatusNotFound, "Resume not found")
+			ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Resume not found"})
 			return
 		}
-		ctx.String(http.StatusInternalServerError, "Error retrieving resume from database")
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Error retrieving resume from database"})
+		return
+	}
+
+	if currentUser.Role == "candidate" && currentUser.ID != resume.CandidateID {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "You are Not Allowed to perform this action"})
 		return
 	}
 
 	filePath := filepath.Join("uploads", resume.Filename)
+	_, err = os.Stat(filePath)
+	if os.IsNotExist(err) {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Resume not found"})
+		return
+	}
 	ctx.File(filePath)
 
 }
