@@ -58,7 +58,7 @@ func (jc *JobController) CreateJob(ctx *gin.Context) {
 			ctx.JSON(http.StatusConflict, gin.H{"status": "fail", "message": "Job with that title already exists"})
 			return
 		}
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": result.Error.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
 		return
 	}
 
@@ -81,7 +81,7 @@ func (jc *JobController) UpdateJob(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(models.User)
 	var payload *models.UpdateJobRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "fail", "message": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
 		return
 	}
 
@@ -150,7 +150,7 @@ func (jc *JobController) FindJobs(ctx *gin.Context) {
 
 	results := jc.DB.Where("deadline > ?", time.Now()).Limit(intLimit).Offset(offset).Find(&jobs)
 	if results.Error != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": results.Error})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": results.Error})
 		return
 	}
 

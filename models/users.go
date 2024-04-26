@@ -19,8 +19,8 @@ type User struct {
 type SignUpInput struct {
 	FirstName       string `json:"firstName" binding:"required,min=3,alpha"`
 	LastName        string `json:"lastName" binding:"required,min=3,alpha"`
-	PhoneNumber     string `json:"phoneNumber" binding:"required,min=10"`
-	Username        string `json:"username" binding:"required,min=5"`
+	PhoneNumber     string `json:"phoneNumber" binding:"required,e164"`
+	Username        string `json:"username" binding:"required,min=5,alphanum"`
 	Email           string `json:"email" binding:"required,email"`
 	Password        string `json:"password" binding:"required,min=8"`
 	PasswordConfirm string `json:"passwordConfirm" binding:"required,min=8"`

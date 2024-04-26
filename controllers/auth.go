@@ -36,7 +36,7 @@ func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 
 	hashedPassword, err := utils.HashPassword(payload.Password)
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": err.Error()})
 		return
 	}
 
@@ -82,7 +82,7 @@ func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	}
 
 	var user models.User
-	result := ac.DB.First(&user, "username = ?", strings.ToLower(payload.Username))
+	result := ac.DB.First(&user, "username = ?", payload.Username)
 	if result.Error != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid username or Password"})
 		return

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -21,7 +22,7 @@ func (ac *ApplicationController) UpdateApplication(ctx *gin.Context) {
 	applicationID, _ := strconv.Atoi(ctx.Param("applicationID"))
 	var payload *models.UpdateApplicationRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "fail", "message": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Unvalid update application request"})
 		return
 	}
 
@@ -63,8 +64,17 @@ func (ac *ApplicationController) GetApplicationByID(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(models.User)
 	var application models.Application
 	result := ac.DB.First(&application, "id = ?", applicationID)
-	if result.Error != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No application with that ID exists"})
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No Application with that ID exists"})
+		return
+	} else if result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "message": "Internal Server Error"})
+		return
+	}
+
+	if &application == nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No application with ID exists"})
 		return
 	}
 
@@ -87,11 +97,20 @@ func (ac *ApplicationController) GetApplicationByID(ctx *gin.Context) {
 }
 
 func (ac *ApplicationController) FindApplications(ctx *gin.Context) {
-	jobID, _ := strconv.Atoi(ctx.Query("jobId"))
+	jobID, err := strconv.Atoi(ctx.Query("jobId"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Unvalid Job Id"})
+		return
+	}
 	var applications []models.Application
 	result := ac.DB.Where("job_id = ?", jobID).Find(&applications)
 	if result.Error != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": result.Error.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "message": "Internal Server Error"})
+		return
+	}
+
+	if len(applications) == 0 {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No application with that Job ID exists"})
 		return
 	}
 
@@ -117,7 +136,12 @@ func (ac *ApplicationController) GetApplicationsByCandidate(ctx *gin.Context) {
 	var applications []models.Application
 	result := ac.DB.Where("candidate_id = ?", currentUser.ID).Find(&applications)
 	if result.Error != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": result.Error.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "message": "Internal Server Error"})
+		return
+	}
+
+	if len(applications) == 0 {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No applications for this user"})
 		return
 	}
 
