@@ -1,0 +1,12 @@
+services:
+     postgres-hr:
+          image: postgres
+          container_name: postgres-hr
+          ports:
+               - 6500:5432
+          env_file:
+               - ./app.env
+          volumes:
+               - postgres-hr:/var/lib/postgresql/data
+volumes:
+     postgres-hr:

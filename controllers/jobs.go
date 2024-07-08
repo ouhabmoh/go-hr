@@ -54,10 +54,7 @@ func (jc *JobController) CreateJob(ctx *gin.Context) {
 
 	result := jc.DB.Create(&newJob)
 	if result.Error != nil {
-		if strings.Contains(result.Error.Error(), "duplicate key") {
-			ctx.JSON(http.StatusConflict, gin.H{"status": "fail", "message": "Job with that title already exists"})
-			return
-		}
+
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
 		return
 	}
